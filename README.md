@@ -9,6 +9,19 @@ Built to support humanitarian efforts in Nepal, this app collects and aggregates
 $  npm install
 ```
 
+##### Set up API keys
+This application uses the [TrackMatching API](https://mapmatching.3scale.net/) to snap GPS coordinates onto roads. You need to get a free API key from their [website](https://mapmatching.3scale.net/login) in order for it to work. Place your App ID and App Key in a file named `config.json` at the root of the project like so:
+```json
+{
+  "keys": {
+    "TRACK_MATCHING": {
+      "APP_ID": "YOUR_APP_ID_HERE",
+      "APP_KEY": "YOUR_APP_KEY_HERE"
+    }
+  }
+}
+```
+
 ##### Start server
 ```shell
 $  npm start
