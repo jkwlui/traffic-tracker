@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
+    <meta charset="utf-8">
+    <title>GPS Traces mock</title>
+    <style>
+      html, body, #map-canvas {
+        height: 100%;
+        margin: 0px;
+        padding: 0px
+      }
+
+      #panel {
+        position: absolute;
+        top: 5px;
+        left: 50%;
+        margin-left: -180px;
+        z-index: 5;
+        background-color: #fff;
+        padding: 5px;
+        border: 1px solid #999;
+      }
+
+      #bar {
+        width: 240px;
+        background-color: rgba(255, 255, 255, 0.75);
+        margin: 8px;
+        padding: 4px;
+        border-radius: 4px;
+      }
+
+      #autoc {
+        width: 100%;
+        box-sizing: border-box;
+      }
+    </style>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+    <script
+      src="https://maps.googleapis.com/maps/api/js?libraries=drawing,places"></script>
+    <script>
+var apiKey = 'AIzaSyCO4BW8czTGKVHIlWVvwzhIphyr7KILEjA';
+
+var map;
+var drawingManager;
+var placeIdArray = [];
+var polylines = [];
+var snappedCoordinates = [];
+
+function initialize() {
+  var mapOptions = {
+    zoom: 12,
+    center: {lat: 49.2827, lng: -123.1207}
+  };
+  map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
+
+  // Adds a Places search box. Searching for a place will center the map on that
+  // location.
+  map.controls[google.maps.ControlPosition.RIGHT_TOP].push(
+      document.getElementById('bar'));
+  var autocomplete = new google.maps.places.Autocomplete(
+      document.getElementById('autoc'));
+  autocomplete.bindTo('bounds', map);
+  autocomplete.addListener('place_changed', function() {
+    var place = autocomplete.getPlace();
+    if (place.geometry.viewport) {
+      map.fitBounds(place.geometry.viewport);
+    } else {
+      map.setCenter(place.geometry.location);
+      map.setZoom(17);
+    }
+  });
+
+  // Enables the polyline drawing control. Click on the map to start drawing a
+  // polyline. Each click will add a new vertice. Double-click to stop drawing.
+  drawingManager = new google.maps.drawing.DrawingManager({
+    drawingMode: google.maps.drawing.OverlayType.POLYLINE,
+    drawingControl: true,
+    drawingControlOptions: {
+      position: google.maps.ControlPosition.TOP_CENTER,
+      drawingModes: [
+        google.maps.drawing.OverlayType.POLYLINE
+      ]
+    },
+    polylineOptions: {
+      strokeColor: '#696969',
+      strokeWeight: 2
+    }
+  });
+  drawingManager.setMap(map);
+
+  // Snap-to-road when the polyline is completed.
+  drawingManager.addListener('polylinecomplete', function(poly) {
+    var path = poly.getPath();
+    polylines.push(poly);
+    placeIdArray = [];
+    runSnapToRoad(path);
+  });
+
+  // Clear button. Click to remove all polylines.
+  $('#clear').click(function(ev) {
+    for (var i = 0; i < polylines.length; ++i) {
+      polylines[i].setMap(null);
+    }
+    polylines = [];
+    ev.preventDefault();
+    return false;
+  });
+}
+
+// send data to server using user-created path
+function runSnapToRoad(path) {
+  var geopoints = [];
+  for (var i = 0; i < path.getLength(); i++) {
+
+    var time = new Date();
+    time.setSeconds(time.getSeconds() + 20 * i);
+
+    geopoints.push({
+      'lat': path.getAt(i).A,
+      'lon': path.getAt(i).F,
+      'time': time
+    });
+  }
+
+  console.log(geopoints);
+
+  var body = {
+    'trip': {
+      'geopoints': geopoints
+    }
+  };
+
+  console.log(JSON.stringify(body));
+
+
+  $.ajax({
+    url: 'http://localhost:3000/trip',
+    contentType: "application/json",
+    type: 'POST',
+    data: JSON.stringify(body),
+    success: function (data) {
+      if (data.success)
+        console.log('trip posted')
+    }
+  });
+}
+
+$(window).load(initialize);
+
+    </script>
+  </head>
+
+  <body>
+    <div id="map-canvas"></div>
+    <div id="bar">
+      <p class="auto"><input type="text" id="autoc"/></p>
+      <p><a id="clear" href="#">Click here</a> to clear map.</p>
+    </div>
+  </body>
+</html>
