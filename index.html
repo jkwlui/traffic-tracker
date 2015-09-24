@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="UTF-8">
+    <title>Traffic-tracker by kinwa91</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="stylesheets/normalize.css" media="screen">
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/github-light.css" media="screen">
+  </head>
+  <body>
+    <section class="page-header">
+      <h1 class="project-name">Traffic-tracker</h1>
+      <h2 class="project-tagline">An API to turn GPS traces into useful road speed data </h2>
+      <a href="https://github.com/kinwa91/traffic-tracker" class="btn">View on GitHub</a>
+      <a href="https://github.com/kinwa91/traffic-tracker/zipball/master" class="btn">Download .zip</a>
+      <a href="https://github.com/kinwa91/traffic-tracker/tarball/master" class="btn">Download .tar.gz</a>
+    </section>
+
+    <section class="main-content">
+      <h1>
+<a id="traffic-tracker" class="anchor" href="#traffic-tracker" aria-hidden="true"><span class="octicon octicon-link"></span></a>Traffic Tracker</h1>
+
+<p>Built to support humanitarian efforts in Nepal, this app collects and aggregates traffic data from GPS traces to easily visualize traffic speed pattern across cities.</p>
+
+<h3>
+<a id="run-locally" class="anchor" href="#run-locally" aria-hidden="true"><span class="octicon octicon-link"></span></a>Run locally</h3>
+
+<h5>
+<a id="install-node-dependencies" class="anchor" href="#install-node-dependencies" aria-hidden="true"><span class="octicon octicon-link"></span></a>Install Node dependencies</h5>
+
+<div class="highlight highlight-source-shell"><pre>$  npm install</pre></div>
+
+<h5>
+<a id="set-up-api-keys" class="anchor" href="#set-up-api-keys" aria-hidden="true"><span class="octicon octicon-link"></span></a>Set up API keys</h5>
+
+<p>This application uses the <a href="https://mapmatching.3scale.net/">TrackMatching API</a> to snap GPS coordinates onto roads. You need to get a free API key from their <a href="https://mapmatching.3scale.net/login">website</a> in order for it to work. Place your App ID and App Key in a file named <code>config.json</code> at the root of the project like so:</p>
+
+<div class="highlight highlight-source-json"><pre>{
+  <span class="pl-s"><span class="pl-pds">"</span>keys<span class="pl-pds">"</span></span>: {
+    <span class="pl-s"><span class="pl-pds">"</span>TRACK_MATCHING<span class="pl-pds">"</span></span>: {
+      <span class="pl-s"><span class="pl-pds">"</span>APP_ID<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>YOUR_APP_ID_HERE<span class="pl-pds">"</span></span>,
+      <span class="pl-s"><span class="pl-pds">"</span>APP_KEY<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>YOUR_APP_KEY_HERE<span class="pl-pds">"</span></span>
+    }
+  }
+}</pre></div>
+
+<h5>
+<a id="start-server" class="anchor" href="#start-server" aria-hidden="true"><span class="octicon octicon-link"></span></a>Start server</h5>
+
+<div class="highlight highlight-source-shell"><pre>$  npm start</pre></div>
+
+<p>Server is running at <code>http://localhost:3000</code></p>
+
+<h2>
+<a id="upload-gps-traces" class="anchor" href="#upload-gps-traces" aria-hidden="true"><span class="octicon octicon-link"></span></a>Upload GPS traces</h2>
+
+<h4>
+<a id="endpoint-post-trip" class="anchor" href="#endpoint-post-trip" aria-hidden="true"><span class="octicon octicon-link"></span></a>Endpoint <code>POST /trip</code>
+</h4>
+
+<p>Include a <code>trip</code> JSON object in the request body:</p>
+
+<div class="highlight highlight-source-js"><pre>{
+  <span class="pl-s"><span class="pl-pds">"</span>trip<span class="pl-pds">"</span></span><span class="pl-k">:</span> {
+    <span class="pl-s"><span class="pl-pds">"</span>geopoints<span class="pl-pds">"</span></span><span class="pl-k">:</span> [
+      {
+        <span class="pl-s"><span class="pl-pds">"</span>lat<span class="pl-pds">"</span></span><span class="pl-k">:</span> <span class="pl-c1">49.165843</span>,
+        <span class="pl-s"><span class="pl-pds">"</span>lon<span class="pl-pds">"</span></span><span class="pl-k">:</span> <span class="pl-k">-</span><span class="pl-c1">123.107281</span>,
+        <span class="pl-s"><span class="pl-pds">"</span>time<span class="pl-pds">"</span></span><span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">"</span>Tue Jun 09 2015 11:31:53 GMT-0700 (PDT)<span class="pl-pds">"</span></span> <span class="pl-c">// JS Date String</span>
+      },
+
+      ...
+    ]
+  }
+}</pre></div>
+
+<p>Server returns a  <code>200</code> status code immediately on success, while the request is processed in the background.</p>
+
+<h2>
+<a id="getting-traffic-speeds" class="anchor" href="#getting-traffic-speeds" aria-hidden="true"><span class="octicon octicon-link"></span></a>Getting traffic speeds</h2>
+
+<h4>
+<a id="endpoint-get-visualize" class="anchor" href="#endpoint-get-visualize" aria-hidden="true"><span class="octicon octicon-link"></span></a>Endpoint <code>GET /visualize</code>
+</h4>
+
+<p>The <code>visualize</code> endpoint gets all speed data from the server using no params. The result is a JSON object:</p>
+
+<div class="highlight highlight-source-js"><pre>{
+  <span class="pl-s"><span class="pl-pds">"</span>status<span class="pl-pds">"</span></span><span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">"</span>success<span class="pl-pds">"</span></span>,
+  <span class="pl-s"><span class="pl-pds">"</span>segments<span class="pl-pds">"</span></span><span class="pl-k">:</span> [
+    {
+      <span class="pl-s"><span class="pl-pds">"</span>_id<span class="pl-pds">"</span></span><span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">"</span>557619b42bba3087b53e5053<span class="pl-pds">"</span></span>,
+      <span class="pl-s"><span class="pl-pds">"</span>aNode<span class="pl-pds">"</span></span><span class="pl-k">:</span> <span class="pl-c1">97998243</span>,
+      <span class="pl-s"><span class="pl-pds">"</span>bNode<span class="pl-pds">"</span></span><span class="pl-k">:</span> <span class="pl-c1">553101333</span>,
+      <span class="pl-s"><span class="pl-pds">"</span>way<span class="pl-pds">"</span></span><span class="pl-k">:</span> <span class="pl-c1">74366445</span>,
+      <span class="pl-s"><span class="pl-pds">"</span>__v<span class="pl-pds">"</span></span><span class="pl-k">:</span> <span class="pl-c1">0</span>,
+      <span class="pl-s"><span class="pl-pds">"</span>speeds<span class="pl-pds">"</span></span><span class="pl-k">:</span> [
+        <span class="pl-c1">4.319808545526469</span>
+      ]
+    },
+    {
+      <span class="pl-s"><span class="pl-pds">"</span>_id<span class="pl-pds">"</span></span><span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">"</span>557619b42bba3087b53e5054<span class="pl-pds">"</span></span>,
+      <span class="pl-s"><span class="pl-pds">"</span>aNode<span class="pl-pds">"</span></span><span class="pl-k">:</span> <span class="pl-c1">253491085</span>,
+      <span class="pl-s"><span class="pl-pds">"</span>bNode<span class="pl-pds">"</span></span><span class="pl-k">:</span> <span class="pl-c1">553101333</span>,
+      <span class="pl-s"><span class="pl-pds">"</span>way<span class="pl-pds">"</span></span><span class="pl-k">:</span> <span class="pl-c1">74366445</span>,
+      <span class="pl-s"><span class="pl-pds">"</span>__v<span class="pl-pds">"</span></span><span class="pl-k">:</span> <span class="pl-c1">0</span>,
+      <span class="pl-s"><span class="pl-pds">"</span>speeds<span class="pl-pds">"</span></span><span class="pl-k">:</span> [
+        <span class="pl-c1">4.319808545526469</span>
+      ]
+    }
+  ],
+  <span class="pl-s"><span class="pl-pds">"</span>nodes<span class="pl-pds">"</span></span><span class="pl-k">:</span> {
+    <span class="pl-s"><span class="pl-pds">"</span>97998243<span class="pl-pds">"</span></span><span class="pl-k">:</span> {
+      <span class="pl-s"><span class="pl-pds">"</span>_id<span class="pl-pds">"</span></span><span class="pl-k">:</span> <span class="pl-c1">97998243</span>,
+      <span class="pl-s"><span class="pl-pds">"</span>location<span class="pl-pds">"</span></span><span class="pl-k">:</span> [
+        <span class="pl-k">-</span><span class="pl-c1">123.122786</span>,
+        <span class="pl-c1">49.2832809</span>
+      ],
+      <span class="pl-s"><span class="pl-pds">"</span>__v<span class="pl-pds">"</span></span><span class="pl-k">:</span> <span class="pl-c1">0</span>
+    },
+    <span class="pl-s"><span class="pl-pds">"</span>253491085<span class="pl-pds">"</span></span><span class="pl-k">:</span> {
+      <span class="pl-s"><span class="pl-pds">"</span>_id<span class="pl-pds">"</span></span><span class="pl-k">:</span> <span class="pl-c1">253491085</span>,
+      <span class="pl-s"><span class="pl-pds">"</span>location<span class="pl-pds">"</span></span><span class="pl-k">:</span> [
+        <span class="pl-k">-</span><span class="pl-c1">123.1217731</span>,
+        <span class="pl-c1">49.2826492</span>
+      ],
+      <span class="pl-s"><span class="pl-pds">"</span>__v<span class="pl-pds">"</span></span><span class="pl-k">:</span> <span class="pl-c1">0</span>
+    },
+    <span class="pl-s"><span class="pl-pds">"</span>553101333<span class="pl-pds">"</span></span><span class="pl-k">:</span> {
+      <span class="pl-s"><span class="pl-pds">"</span>_id<span class="pl-pds">"</span></span><span class="pl-k">:</span> <span class="pl-c1">553101333</span>,
+      <span class="pl-s"><span class="pl-pds">"</span>location<span class="pl-pds">"</span></span><span class="pl-k">:</span> [
+        <span class="pl-k">-</span><span class="pl-c1">123.1222277</span>,
+        <span class="pl-c1">49.2829285</span>
+      ],
+      <span class="pl-s"><span class="pl-pds">"</span>__v<span class="pl-pds">"</span></span><span class="pl-k">:</span> <span class="pl-c1">0</span>
+    }
+  }
+}</pre></div>
+
+<h5>
+<a id="node" class="anchor" href="#node" aria-hidden="true"><span class="octicon octicon-link"></span></a>Node</h5>
+
+<p>Nodes are points on a map.</p>
+
+<p><code>_id</code> references <a href="http://wiki.openstreetmap.org/wiki/Node">OSM node IDs</a></p>
+
+<p><code>location</code> are in <a href="http://geojson.org">GeoJSON</a> format: <code>"location": [lng, lat]</code></p>
+
+<h5>
+<a id="segment" class="anchor" href="#segment" aria-hidden="true"><span class="octicon octicon-link"></span></a>Segment</h5>
+
+<p>Segments are a roadway between two nodes on an <a href="http://wiki.openstreetmap.org/wiki/Way">OSM way</a></p>
+
+<p><code>aNode</code> and <code>bNode</code> always refers to a node in <code>nodes</code>.</p>
+
+<p><code>aNode</code> ID is by design smaller than <code>bNode</code> to avoid duplicate Segment entries in the database.</p>
+
+<p>Note: While <code>segments</code> is an array, <code>nodes</code> is a hash with keys that reference to its OSM node IDs for quick searching.</p>
+
+<h4>
+<a id="endpoint-get-visualizebbox" class="anchor" href="#endpoint-get-visualizebbox" aria-hidden="true"><span class="octicon octicon-link"></span></a>Endpoint <code>GET /visualize/bbox</code>
+</h4>
+
+<p>Specify a bounding box in the query string of the GET request to return only segments covered by the box.</p>
+
+<h5>
+<a id="example" class="anchor" href="#example" aria-hidden="true"><span class="octicon octicon-link"></span></a>Example</h5>
+
+<div class="highlight highlight-source-shell"><pre>$  CURL <span class="pl-s"><span class="pl-pds">"</span>/visualize/bbox/?sw_lat=49.195&amp;sw_lon=-123.27&amp;ne_lat=49.315&amp;ne_lon=-123.020<span class="pl-pds">"</span></span></pre></div>
+
+<p>Response is in same format as the <code>GET /visualize</code> endpoint.</p>
+
+      <footer class="site-footer">
+        <span class="site-footer-owner"><a href="https://github.com/kinwa91/traffic-tracker">Traffic-tracker</a> is maintained by <a href="https://github.com/kinwa91">kinwa91</a>.</span>
+
+        <span class="site-footer-credits">This page was generated by <a href="https://pages.github.com">GitHub Pages</a> using the <a href="https://github.com/jasonlong/cayman-theme">Cayman theme</a> by <a href="https://twitter.com/jasonlong">Jason Long</a>.</span>
+      </footer>
+
+    </section>
+
+  
+  </body>
+</html>
